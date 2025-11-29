@@ -10,7 +10,7 @@ class Train(Base):
     id = Column(BigInteger, primary_key=True, index=True)
     train_number = Column(String(20), nullable=False, index=True)
     arrival_time = Column(DateTime, nullable=False)
-    departure_time = Column(DateTime, nullable=False)
+    departure_time = Column(DateTime, nullable=True)  # Изменено на nullable=True
     
     # Связи
     workers = relationship("Worker", back_populates="train", cascade="all, delete-orphan")
@@ -57,7 +57,7 @@ class Worker(Base):
     uniform_id = Column(Integer, ForeignKey("uniforms.id"), nullable=False)
     helmet_on = Column(Boolean, nullable=False, default=False)
     appearance_time = Column(DateTime, nullable=False)
-    disappearance_time = Column(DateTime, nullable=False)
+    disappearance_time = Column(DateTime, nullable=True)  # Изменено на nullable=True
     
     # Связи
     train = relationship("Train", back_populates="workers")
@@ -76,7 +76,7 @@ class WorkerActivity(Base):
     worker_id = Column(BigInteger, ForeignKey("workers.id", ondelete="CASCADE"), nullable=False)
     activity_id = Column(Integer, ForeignKey("activities.id"), nullable=False)
     start_time = Column(DateTime, nullable=False)
-    end_time = Column(DateTime, nullable=False)
+    end_time = Column(DateTime, nullable=True)  # Изменено на nullable=True
 
     # Связи
     worker = relationship("Worker", back_populates="activities")

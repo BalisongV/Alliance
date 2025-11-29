@@ -53,8 +53,24 @@ def drop_tables(engine=None):
     """Удаление всех таблиц из базы данных"""
     if engine is None:
         engine = get_engine()
-    Base.metadata.drop_all(bind=engine)
-    print("Все таблицы удалены из базы данных")
+    
+    # Создаем новое соединение без использования ORM
+    with engine.connect() as conn:
+        conn.execute(text("COMMIT"))
+        
+        # Получаем список всех таблиц
+        result = conn.execute(text("""
+            SELECT tablename 
+            FROM pg_tables 
+            WHERE schemaname = 'public'
+        """))
+        tables = [row[0] for row in result]
+        
+        # Удаляем каждую таблицу отдельно
+        for table in tables:
+            conn.execute(text(f'DROP TABLE IF EXISTS "{table}" CASCADE'))
+        
+        print(f"Удалены таблицы: {tables}")
 
 def clear_all_data(engine=None):
     """Очистка всех данных из таблиц (без удаления самих таблиц)"""

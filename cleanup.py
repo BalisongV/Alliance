@@ -1,4 +1,4 @@
-from database import drop_tables, clear_all_data, get_engine
+from database import drop_tables, clear_all_data, get_engine, create_tables
 import sys
 
 def main():
@@ -24,8 +24,7 @@ def main():
             confirm = input("Вы уверены, что хотите полностью сбросить базу данных? (y/n): ")
             if confirm.lower() == 'y':
                 drop_tables(engine)
-                from database import create_tables
-                create_tables(engine)
+                create_tables(engine)  # Используем уже импортированную функцию
                 print("База данных полностью сброшена")
             else:
                 print("Операция отменена")

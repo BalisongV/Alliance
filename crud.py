@@ -7,11 +7,11 @@ import models
 # CRUD операции для Train
 class TrainCRUD:
     @staticmethod
-    def create_train(db: Session, train_number: str, arrival_time: datetime, departure_time: datetime):
+    def create_train(db: Session, train_number: str, arrival_time: datetime, departure_time: datetime = None):
         db_train = models.Train(
             train_number=train_number,
             arrival_time=arrival_time,
-            departure_time=departure_time
+            departure_time=departure_time  # Может быть None
         )
         db.add(db_train)
         db.commit()
@@ -76,15 +76,14 @@ class ActivityCRUD:
 
 # CRUD операции для Worker
 class WorkerCRUD:
-    @staticmethod
-    def create_worker(db: Session, train_id: int, uniform_id: int, helmet_on: bool, 
-                     appearance_time: datetime, disappearance_time: datetime):
+    def create_worker(db: Session, train_id: int, uniform_id: int, helmet_on: bool,
+                    appearance_time: datetime, disappearance_time: datetime = None):
         db_worker = models.Worker(
             train_id=train_id,
             uniform_id=uniform_id,
             helmet_on=helmet_on,
             appearance_time=appearance_time,
-            disappearance_time=disappearance_time
+            disappearance_time=disappearance_time  # Может быть None
         )
         db.add(db_worker)
         db.commit()
@@ -112,13 +111,13 @@ class WorkerCRUD:
 # CRUD операции для WorkerActivity
 class WorkerActivityCRUD:
     @staticmethod
-    def create_worker_activity(db: Session, worker_id: int, activity_id: int, 
-                              start_time: datetime, end_time: datetime):
+    def create_worker_activity(db: Session, worker_id: int, activity_id: int,
+                            start_time: datetime, end_time: datetime = None):
         db_activity = models.WorkerActivity(
             worker_id=worker_id,
             activity_id=activity_id,
             start_time=start_time,
-            end_time=end_time
+            end_time=end_time  # Может быть None
         )
         db.add(db_activity)
         db.commit()

@@ -80,7 +80,8 @@ def initialize_sample_data():
             session,
             "ЭС1-012",
             datetime.now() - timedelta(hours=5),
-            datetime.now() - timedelta(hours=2)
+            None  # departure_time теперь NULL
+            #datetime.now() - timedelta(hours=1),
         )
 
         # Создание работников - ДОБАВЛЕНО БОЛЬШЕ РАБОТНИКОВ
@@ -293,11 +294,11 @@ def display_all_tables():
             print("-" * 70)
             for train in trains:
                 arrival = train.arrival_time.strftime("%Y-%m-%d %H:%M:%S")
-                departure = train.departure_time.strftime("%Y-%m-%d %H:%M:%S")
+                departure = train.departure_time.strftime("%Y-%m-%d %H:%M:%S") if train.departure_time else "NULL"
                 print(f"{train.id:<5} {train.train_number:<15} {arrival:<20} {departure:<20}")
         else:
             print("Таблица пуста")
-        
+            
         # 4. Таблица workers
         print("\n--- ТАБЛИЦА: workers ---")
         workers = session.query(models.Worker).all()
@@ -306,12 +307,12 @@ def display_all_tables():
             print("-" * 90)
             for worker in workers:
                 appearance = worker.appearance_time.strftime("%Y-%m-%d %H:%M:%S")
-                disappearance = worker.disappearance_time.strftime("%Y-%m-%d %H:%M:%S")
+                disappearance = worker.disappearance_time.strftime("%Y-%m-%d %H:%M:%S") if worker.disappearance_time else "NULL"
                 helmet = "Да" if worker.helmet_on else "Нет"
                 print(f"{worker.id:<5} {worker.train_id:<10} {worker.uniform_id:<12} {helmet:<8} {appearance:<20} {disappearance:<20}")
         else:
             print("Таблица пуста")
-        
+            
         # 5. Таблица worker_activities
         print("\n--- ТАБЛИЦА: worker_activities ---")
         worker_activities = session.query(models.WorkerActivity).all()
@@ -320,7 +321,7 @@ def display_all_tables():
             print("-" * 80)
             for wa in worker_activities:
                 start = wa.start_time.strftime("%Y-%m-%d %H:%M:%S")
-                end = wa.end_time.strftime("%Y-%m-%d %H:%M:%S")
+                end = wa.end_time.strftime("%Y-%m-%d %H:%M:%S") if wa.end_time else "NULL"
                 print(f"{wa.id:<5} {wa.worker_id:<13} {wa.activity_id:<14} {start:<20} {end:<20}")
         else:
             print("Таблица пуста")
