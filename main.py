@@ -4,11 +4,48 @@ import models
 import crud
 import queries
 
+# Глобальные переменные для управления размером таблиц
+MAX_RECORDS = 7  # Максимальное количество записей перед очисткой
+DELETE_BATCH = 4   # Сколько записей удалять при превышении лимита
+
+def check_and_cleanup_tables(db):
+    """Проверяет размер таблиц и удаляет старые записи при необходимости"""
+    try:
+        # Проверяем количество записей в workers
+        workers_count = db.query(models.Worker).count()
+        worker_activities_count = db.query(models.WorkerActivity).count()
+        
+        print(f"Текущее количество записей: workers={workers_count}, worker_activities={worker_activities_count}")
+        
+        # Если превышен лимит, удаляем самые старые записи
+        if workers_count >= MAX_RECORDS or worker_activities_count >= MAX_RECORDS:
+            print(f"Превышен лимит {MAX_RECORDS} записей. Удаляем {DELETE_BATCH} самых старых записей...")
+            
+            # Удаляем из worker_activities (сначала из зависимой таблицы)
+            old_activities = db.query(models.WorkerActivity).order_by(models.WorkerActivity.start_time).limit(DELETE_BATCH).all()
+            for activity in old_activities:
+                db.delete(activity)
+            
+            # Удаляем из workers
+            old_workers = db.query(models.Worker).order_by(models.Worker.appearance_time).limit(DELETE_BATCH).all()
+            for worker in old_workers:
+                db.delete(worker)
+            
+            db.commit()
+            print(f"Удалено {len(old_workers)} работников и {len(old_activities)} активностей")
+            
+    except Exception as e:
+        db.rollback()
+        print(f"Ошибка при очистке таблиц: {e}")
+
 def initialize_sample_data():
     """Инициализация тестовых данных"""
     session = get_session()
-    
+
     try:
+        # Проверяем и очищаем таблицы перед добавлением новых данных
+        check_and_cleanup_tables(session)
+
         # Создание видов униформы
         uniform_colors = ["униформа отсутствует", "синий", "серый", "белый"]
         uniforms = {}
@@ -201,7 +238,7 @@ def initialize_sample_data():
             "Сотрудник пересек ограничительную линию без разрешения",
             datetime.now() - timedelta(hours=4, minutes=15)
         )
-                
+
         session.commit()
         
         # Расчет и сохранение среднего времени работы
