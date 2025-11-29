@@ -139,10 +139,9 @@ class WorkerActivityCRUD:
             )
         ).all()
 
-# CRUD операции для MeanWorkingTime
 class MeanWorkingTimeCRUD:
     @staticmethod
-    def create_or_update_mean_working_time(db: Session, uniform_id: int, uniform_color: str,
+    def create_or_update_mean_working_time(db: Session, uniform_id: int,
                                          mean_seconds: int, worker_count: int, activity_count: int):
         """Создает или обновляет запись о среднем времени работы"""
         existing = db.query(models.MeanWorkingTime).filter(
@@ -157,7 +156,6 @@ class MeanWorkingTimeCRUD:
         else:
             db_record = models.MeanWorkingTime(
                 uniform_id=uniform_id,
-                uniform_color=uniform_color,
                 mean_seconds=mean_seconds,
                 worker_count=worker_count,
                 activity_count=activity_count
@@ -168,16 +166,6 @@ class MeanWorkingTimeCRUD:
         return existing or db_record
 
     @staticmethod
-    def get_mean_working_time(db: Session, uniform_id: int):
-        return db.query(models.MeanWorkingTime).filter(
-            models.MeanWorkingTime.uniform_id == uniform_id
-        ).first()
-
-    @staticmethod
-    def get_all_mean_working_times(db: Session):
-        return db.query(models.MeanWorkingTime).order_by(models.MeanWorkingTime.uniform_id).all()
-
-    @staticmethod
     def calculate_and_update_all(db: Session):
         """Вычисляет и обновляет среднее время работы для всех униформ"""
         from sqlalchemy import func
@@ -185,20 +173,19 @@ class MeanWorkingTimeCRUD:
         # Запрос для вычисления среднего времени работы (активность ID=1 - "работает")
         results = db.query(
             models.Uniform.id,
-            models.Uniform.color,
             func.avg(func.extract('epoch', models.WorkerActivity.end_time - models.WorkerActivity.start_time)).label('mean_seconds'),
             func.count(func.distinct(models.Worker.id)).label('worker_count'),
             func.count(models.WorkerActivity.id).label('activity_count')
         ).join(models.Worker, models.Worker.uniform_id == models.Uniform.id)\
          .join(models.WorkerActivity, models.WorkerActivity.worker_id == models.Worker.id)\
          .filter(models.WorkerActivity.activity_id == 1)\
-         .group_by(models.Uniform.id, models.Uniform.color)\
+         .group_by(models.Uniform.id)\
          .all()
         
         updated_records = []
-        for uniform_id, color, mean_seconds, worker_count, activity_count in results:
+        for uniform_id, mean_seconds, worker_count, activity_count in results:
             record = MeanWorkingTimeCRUD.create_or_update_mean_working_time(
-                db, uniform_id, color, 
+                db, uniform_id, 
                 int(mean_seconds) if mean_seconds else 0,
                 worker_count, activity_count
             )

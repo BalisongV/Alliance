@@ -332,11 +332,11 @@ def display_all_tables():
         print("\n--- ТАБЛИЦА: mean_working_time ---")
         mean_times = session.query(models.MeanWorkingTime).all()
         if mean_times:
-            print(f"{'ID':<5} {'ID униформы':<12} {'Цвет':<15} {'Ср. время (сек)':<15} {'Работники':<10} {'Активности':<12} {'Обновлено':<20}")
+            print(f"{'ID':<5} {'ID униформы':<12} {'Ср. время (сек)':<15} {'Работники':<10} {'Активности':<12} {'Обновлено':<20}")
             print("-" * 100)
             for mt in mean_times:
                 updated = mt.last_updated.strftime("%Y-%m-%d %H:%M:%S")
-                print(f"{mt.id:<5} {mt.uniform_id:<12} {mt.uniform_color:<15} {mt.mean_seconds:<15} {mt.worker_count:<10} {mt.activity_count:<12} {updated:<20}")
+                print(f"{mt.id:<5} {mt.uniform_id:<12} {mt.mean_seconds:<15} {mt.worker_count:<10} {mt.activity_count:<12} {updated:<20}")
         else:
             print("Таблица пуста")
 

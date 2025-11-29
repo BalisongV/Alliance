@@ -92,7 +92,7 @@ class MeanWorkingTime(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     uniform_id = Column(Integer, ForeignKey("uniforms.id"), nullable=False, unique=True)
-    uniform_color = Column(String(50), nullable=False)
+    # uniform_color УДАЛЕН - используем связь с таблицей uniforms
     mean_seconds = Column(Integer, nullable=False)  # Среднее время в секундах
     worker_count = Column(Integer, nullable=False)  # Количество работников
     activity_count = Column(Integer, nullable=False)  # Количество активностей
@@ -102,7 +102,7 @@ class MeanWorkingTime(Base):
     uniform = relationship("Uniform")
 
     def __repr__(self):
-        return f"<MeanWorkingTime(uniform='{self.uniform_color}', mean_seconds={self.mean_seconds})>"
+        return f"<MeanWorkingTime(uniform_id={self.uniform_id}, mean_seconds={self.mean_seconds})>"
     
 class Alert(Base):
     """Модель происшествий и предупреждений"""
