@@ -27,10 +27,27 @@ def get_session(engine=None):
     return SessionLocal()
 
 def create_tables(engine=None):
-    """Создание всех таблиц в БД"""
     if engine is None:
         engine = get_engine()
+    
     Base.metadata.create_all(bind=engine)
+    
+    # Создаем нулевой поезд если его нет
+    session = get_session(engine)
+    try:
+        from models import Train
+        zero_train = session.query(Train).filter(Train.id == 0).first()
+        if not zero_train:
+            session.execute(text(
+                "INSERT INTO trains (id, train_number, arrival_time, departure_time) VALUES (0, '000-000', '0001-01-01 00:00:00', '0001-01-01 00:00:00')"
+            ))
+            session.commit()
+            print("Создан нулевой поезд: ID=0, Номер=000-000")
+    except Exception as e:
+        print(f"Ошибка при создании нулевого поезда: {e}")
+    finally:
+        session.close()
+
 
 def drop_tables(engine=None):
     """Удаление всех таблиц из базы данных"""

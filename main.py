@@ -18,12 +18,8 @@ def initialize_sample_data():
         
         # Создание видов деятельности
         activities_data = [
-            ("идет", "Перемещение по территории"),
-            ("чинит", "Ремонтные работы"),
-            ("моет пол", "Уборка помещений"),
-            ("осматривает", "Технический осмотр"),
-            ("разговаривает", "Общение с коллегами"),
-            ("несет инструмент", "Транспортировка оборудования")
+            ("работает", "ремонтные работы"),
+            ("не работает", "сотрудник не работает")
         ]
         
         activities = {}
@@ -69,7 +65,7 @@ def initialize_sample_data():
         crud.WorkerActivityCRUD.create_worker_activity(
             session,
             worker1.id,
-            activities["осматривает"].id,
+            activities["работает"].id,
             datetime.now() - timedelta(hours=3, minutes=5),
             datetime.now() - timedelta(hours=2, minutes=30)
         )
@@ -77,7 +73,7 @@ def initialize_sample_data():
         crud.WorkerActivityCRUD.create_worker_activity(
             session,
             worker1.id,
-            activities["чинит"].id,
+            activities["не работает"].id,
             datetime.now() - timedelta(hours=2, minutes=25),
             datetime.now() - timedelta(hours=1, minutes=10)
         )
