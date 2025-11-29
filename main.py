@@ -177,7 +177,31 @@ def initialize_sample_data():
             datetime.now() - timedelta(hours=2, minutes=40)
         )
         
+        # Создание тестовых происшествий
+        crud.AlertCRUD.create_alert(
+            session,
+            worker2.id,  # работник без каски
+            "падение на рельсы",
+            "Сотрудник упал на рельсы при осмотре поезда",
+            datetime.now() - timedelta(hours=2, minutes=30)
+        )
         
+        crud.AlertCRUD.create_alert(
+            session,
+            worker5.id,  # другой работник без каски
+            "отсутствие защитной экипировки", 
+            "Сотрудник работает без каски в опасной зоне",
+            datetime.now() - timedelta(hours=1, minutes=10)
+        )
+        
+        crud.AlertCRUD.create_alert(
+            session,
+            worker7.id,
+            "нарушение техники безопасности",
+            "Сотрудник пересек ограничительную линию без разрешения",
+            datetime.now() - timedelta(hours=4, minutes=15)
+        )
+                
         session.commit()
         
         # Расчет и сохранение среднего времени работы
@@ -273,6 +297,19 @@ def display_all_tables():
             for mt in mean_times:
                 updated = mt.last_updated.strftime("%Y-%m-%d %H:%M:%S")
                 print(f"{mt.id:<5} {mt.uniform_id:<12} {mt.uniform_color:<15} {mt.mean_seconds:<15} {mt.worker_count:<10} {mt.activity_count:<12} {updated:<20}")
+        else:
+            print("Таблица пуста")
+
+        # 7. Таблица alerts
+        print("\n--- ТАБЛИЦА: alerts ---")
+        alerts = session.query(models.Alert).all()
+        if alerts:
+            print(f"{'ID':<5} {'ID работника':<12} {'Тип':<20} {'Сообщение':<30} {'Время':<20}")
+            print("-" * 90)
+            for alert in alerts:
+                alert_time = alert.alert_time.strftime("%Y-%m-%d %H:%M:%S")
+                message = alert.danger_message[:27] + "..." if len(alert.danger_message) > 30 else alert.danger_message
+                print(f"{alert.id:<5} {alert.worker_id:<12} {alert.alert_type:<20} {message:<30} {alert_time:<20}")
         else:
             print("Таблица пуста")
         

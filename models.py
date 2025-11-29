@@ -104,4 +104,18 @@ class MeanWorkingTime(Base):
     def __repr__(self):
         return f"<MeanWorkingTime(uniform='{self.uniform_color}', mean_seconds={self.mean_seconds})>"
     
+class Alert(Base):
+    """Модель происшествий и предупреждений"""
+    __tablename__ = "alerts"
+
+    id = Column(BigInteger, primary_key=True, index=True)
+    worker_id = Column(BigInteger, ForeignKey("workers.id", ondelete="CASCADE"), nullable=False)
+    alert_type = Column(String(100), nullable=False, index=True)  # тип происшествия
+    danger_message = Column(Text, nullable=False)  # сообщение об опасности
+    alert_time = Column(DateTime, nullable=False, index=True)  # время происшествия
     
+    # Связи
+    worker = relationship("Worker")
+
+    def __repr__(self):
+        return f"<Alert(id={self.id}, worker_id={self.worker_id}, type='{self.alert_type}')>"

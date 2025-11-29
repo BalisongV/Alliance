@@ -207,3 +207,39 @@ class MeanWorkingTimeCRUD:
         
         return updated_records
     
+# CRUD операции для Alert
+class AlertCRUD:
+    @staticmethod
+    def create_alert(db: Session, worker_id: int, alert_type: str, danger_message: str, alert_time: datetime):
+        db_alert = models.Alert(
+            worker_id=worker_id,
+            alert_type=alert_type,
+            danger_message=danger_message,
+            alert_time=alert_time
+        )
+        db.add(db_alert)
+        db.commit()
+        db.refresh(db_alert)
+        return db_alert
+
+    @staticmethod
+    def get_alert(db: Session, alert_id: int):
+        return db.query(models.Alert).filter(models.Alert.id == alert_id).first()
+
+    @staticmethod
+    def get_alerts_by_worker(db: Session, worker_id: int):
+        return db.query(models.Alert).filter(models.Alert.worker_id == worker_id).all()
+
+    @staticmethod
+    def get_alerts_by_type(db: Session, alert_type: str):
+        return db.query(models.Alert).filter(models.Alert.alert_type == alert_type).all()
+
+    @staticmethod
+    def get_alerts_in_time_range(db: Session, start_time: datetime, end_time: datetime):
+        return db.query(models.Alert).filter(
+            and_(
+                models.Alert.alert_time >= start_time,
+                models.Alert.alert_time <= end_time
+            )
+        ).order_by(models.Alert.alert_time).all()
+

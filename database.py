@@ -63,6 +63,7 @@ def clear_all_data(engine=None):
     session = get_session(engine)
     try:
         # Очистка в правильном порядке из-за foreign key constraints
+        session.execute(text("DELETE FROM alerts"))  # Новая строка
         session.execute(text("DELETE FROM mean_working_time"))  # Новая строка
         session.execute(text("DELETE FROM worker_activities"))
         session.execute(text("DELETE FROM workers"))
@@ -70,6 +71,7 @@ def clear_all_data(engine=None):
         session.execute(text("DELETE FROM activities"))
         session.execute(text("DELETE FROM uniforms"))
         # Сброс последовательностей для auto-increment полей
+        session.execute(text("ALTER SEQUENCE alerts_id_seq RESTART WITH 1"))  # Новая строка
         session.execute(text("ALTER SEQUENCE mean_working_time_id_seq RESTART WITH 1"))  # Новая строка
         session.execute(text("ALTER SEQUENCE worker_activities_id_seq RESTART WITH 1"))
         session.execute(text("ALTER SEQUENCE workers_id_seq RESTART WITH 1"))
