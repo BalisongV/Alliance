@@ -140,32 +140,70 @@ class WorkerActivityCRUD:
             )
         ).all()
 
-
-# CRUD операции для FrameStatistics
-class FrameStatisticsCRUD:
+# CRUD операции для MeanWorkingTime
+class MeanWorkingTimeCRUD:
     @staticmethod
-    def create_frame_statistics(db: Session, timestamp: datetime, workers_count: int, train_id: int):
-        db_stats = models.FrameStatistics(
-            timestamp=timestamp,
-            workers_count=workers_count,
-            train_id=train_id
-        )
-        db.add(db_stats)
-        db.commit()
-        db.refresh(db_stats)
-        return db_stats
-
-    @staticmethod
-    def get_statistics_by_train(db: Session, train_id: int):
-        return db.query(models.FrameStatistics).filter(
-            models.FrameStatistics.train_id == train_id
-        ).order_by(models.FrameStatistics.timestamp).all()
-
-    @staticmethod
-    def get_statistics_in_time_range(db: Session, start_time: datetime, end_time: datetime):
-        return db.query(models.FrameStatistics).filter(
-            and_(
-                models.FrameStatistics.timestamp >= start_time,
-                models.FrameStatistics.timestamp <= end_time
+    def create_or_update_mean_working_time(db: Session, uniform_id: int, uniform_color: str,
+                                         mean_seconds: int, worker_count: int, activity_count: int):
+        """Создает или обновляет запись о среднем времени работы"""
+        existing = db.query(models.MeanWorkingTime).filter(
+            models.MeanWorkingTime.uniform_id == uniform_id
+        ).first()
+        
+        if existing:
+            existing.mean_seconds = mean_seconds
+            existing.worker_count = worker_count
+            existing.activity_count = activity_count
+            existing.last_updated = datetime.now()
+        else:
+            db_record = models.MeanWorkingTime(
+                uniform_id=uniform_id,
+                uniform_color=uniform_color,
+                mean_seconds=mean_seconds,
+                worker_count=worker_count,
+                activity_count=activity_count
             )
-        ).order_by(models.FrameStatistics.timestamp).all()
+            db.add(db_record)
+        
+        db.commit()
+        return existing or db_record
+
+    @staticmethod
+    def get_mean_working_time(db: Session, uniform_id: int):
+        return db.query(models.MeanWorkingTime).filter(
+            models.MeanWorkingTime.uniform_id == uniform_id
+        ).first()
+
+    @staticmethod
+    def get_all_mean_working_times(db: Session):
+        return db.query(models.MeanWorkingTime).order_by(models.MeanWorkingTime.uniform_id).all()
+
+    @staticmethod
+    def calculate_and_update_all(db: Session):
+        """Вычисляет и обновляет среднее время работы для всех униформ"""
+        from sqlalchemy import func
+        
+        # Запрос для вычисления среднего времени работы (активность ID=1 - "работает")
+        results = db.query(
+            models.Uniform.id,
+            models.Uniform.color,
+            func.avg(func.extract('epoch', models.WorkerActivity.end_time - models.WorkerActivity.start_time)).label('mean_seconds'),
+            func.count(func.distinct(models.Worker.id)).label('worker_count'),
+            func.count(models.WorkerActivity.id).label('activity_count')
+        ).join(models.Worker, models.Worker.uniform_id == models.Uniform.id)\
+         .join(models.WorkerActivity, models.WorkerActivity.worker_id == models.Worker.id)\
+         .filter(models.WorkerActivity.activity_id == 1)\
+         .group_by(models.Uniform.id, models.Uniform.color)\
+         .all()
+        
+        updated_records = []
+        for uniform_id, color, mean_seconds, worker_count, activity_count in results:
+            record = MeanWorkingTimeCRUD.create_or_update_mean_working_time(
+                db, uniform_id, color, 
+                int(mean_seconds) if mean_seconds else 0,
+                worker_count, activity_count
+            )
+            updated_records.append(record)
+        
+        return updated_records
+    

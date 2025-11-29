@@ -15,34 +15,38 @@ def initialize_sample_data():
         for color in uniform_colors:
             uniform = crud.UniformCRUD.create_uniform(session, color)
             uniforms[color] = uniform
-        
+
         # Создание видов деятельности
         activities_data = [
             ("работает", "ремонтные работы"),
             ("не работает", "сотрудник не работает")
         ]
-        
         activities = {}
         for name, description in activities_data:
             activity = crud.ActivityCRUD.create_activity(session, name, description)
             activities[name] = activity
-        
+
         # Создание поездов
         train1 = crud.TrainCRUD.create_train(
-            session, 
-            "ЭС1-001", 
+            session,
+            "ЭС1-001",
             datetime.now() - timedelta(hours=3),
             datetime.now() - timedelta(hours=1)
         )
-        
         train2 = crud.TrainCRUD.create_train(
             session,
-            "ЭС2-005", 
+            "ЭС2-005",
             datetime.now() - timedelta(hours=2),
             datetime.now()
         )
-        
-        # Создание работников
+        train3 = crud.TrainCRUD.create_train(
+            session,
+            "ЭС1-012",
+            datetime.now() - timedelta(hours=5),
+            datetime.now() - timedelta(hours=2)
+        )
+
+        # Создание работников - ДОБАВЛЕНО БОЛЬШЕ РАБОТНИКОВ
         worker1 = crud.WorkerCRUD.create_worker(
             session,
             train1.id,
@@ -51,7 +55,6 @@ def initialize_sample_data():
             datetime.now() - timedelta(hours=3, minutes=10),
             datetime.now() - timedelta(hours=1, minutes=5)
         )
-        
         worker2 = crud.WorkerCRUD.create_worker(
             session,
             train1.id,
@@ -60,8 +63,56 @@ def initialize_sample_data():
             datetime.now() - timedelta(hours=2, minutes=45),
             datetime.now() - timedelta(hours=1, minutes=15)
         )
-        
-        # Создание активностей работников
+        worker3 = crud.WorkerCRUD.create_worker(
+            session,
+            train1.id,
+            uniforms["серый"].id,
+            True,
+            datetime.now() - timedelta(hours=3, minutes=30),
+            datetime.now() - timedelta(hours=1, minutes=20)
+        )
+        worker4 = crud.WorkerCRUD.create_worker(
+            session,
+            train2.id,
+            uniforms["синий"].id,
+            True,
+            datetime.now() - timedelta(hours=2, minutes=15),
+            datetime.now() - timedelta(minutes=30)
+        )
+        worker5 = crud.WorkerCRUD.create_worker(
+            session,
+            train2.id,
+            uniforms["белый"].id,
+            False,
+            datetime.now() - timedelta(hours=1, minutes=45),
+            datetime.now() - timedelta(minutes=15)
+        )
+        worker6 = crud.WorkerCRUD.create_worker(
+            session,
+            train2.id,
+            uniforms["серый"].id,
+            True,
+            datetime.now() - timedelta(hours=2, minutes=30),
+            datetime.now() - timedelta(minutes=45)
+        )
+        worker7 = crud.WorkerCRUD.create_worker(
+            session,
+            train3.id,
+            uniforms["синий"].id,
+            False,
+            datetime.now() - timedelta(hours=5, minutes=20),
+            datetime.now() - timedelta(hours=2, minutes=10)
+        )
+        worker8 = crud.WorkerCRUD.create_worker(
+            session,
+            train3.id,
+            uniforms["белый"].id,
+            True,
+            datetime.now() - timedelta(hours=4, minutes=50),
+            datetime.now() - timedelta(hours=2, minutes=30)
+        )
+
+        # Создание активностей работников - ДОБАВЛЕНО БОЛЬШЕ АКТИВНОСТЕЙ
         crud.WorkerActivityCRUD.create_worker_activity(
             session,
             worker1.id,
@@ -69,7 +120,6 @@ def initialize_sample_data():
             datetime.now() - timedelta(hours=3, minutes=5),
             datetime.now() - timedelta(hours=2, minutes=30)
         )
-        
         crud.WorkerActivityCRUD.create_worker_activity(
             session,
             worker1.id,
@@ -77,16 +127,62 @@ def initialize_sample_data():
             datetime.now() - timedelta(hours=2, minutes=25),
             datetime.now() - timedelta(hours=1, minutes=10)
         )
-        
-        # Создание статистики по кадрам
-        crud.FrameStatisticsCRUD.create_frame_statistics(
+        crud.WorkerActivityCRUD.create_worker_activity(
             session,
-            datetime.now() - timedelta(hours=2),
-            2,
-            train1.id
+            worker2.id,
+            activities["работает"].id,
+            datetime.now() - timedelta(hours=2, minutes=40),
+            datetime.now() - timedelta(hours=1, minutes=30)
+        )
+        crud.WorkerActivityCRUD.create_worker_activity(
+            session,
+            worker3.id,
+            activities["работает"].id,
+            datetime.now() - timedelta(hours=3, minutes=25),
+            datetime.now() - timedelta(hours=1, minutes=40)
+        )
+        crud.WorkerActivityCRUD.create_worker_activity(
+            session,
+            worker4.id,
+            activities["работает"].id,
+            datetime.now() - timedelta(hours=2, minutes=10),
+            datetime.now() - timedelta(minutes=40)
+        )
+        crud.WorkerActivityCRUD.create_worker_activity(
+            session,
+            worker5.id,
+            activities["не работает"].id,
+            datetime.now() - timedelta(hours=1, minutes=40),
+            datetime.now() - timedelta(minutes=20)
+        )
+        crud.WorkerActivityCRUD.create_worker_activity(
+            session,
+            worker6.id,
+            activities["работает"].id,
+            datetime.now() - timedelta(hours=2, minutes=25),
+            datetime.now() - timedelta(minutes=50)
+        )
+        crud.WorkerActivityCRUD.create_worker_activity(
+            session,
+            worker7.id,
+            activities["работает"].id,
+            datetime.now() - timedelta(hours=5, minutes=15),
+            datetime.now() - timedelta(hours=3, minutes=30)
+        )
+        crud.WorkerActivityCRUD.create_worker_activity(
+            session,
+            worker8.id,
+            activities["работает"].id,
+            datetime.now() - timedelta(hours=4, minutes=45),
+            datetime.now() - timedelta(hours=2, minutes=40)
         )
         
+        
         session.commit()
+        
+        # Расчет и сохранение среднего времени работы
+        crud.MeanWorkingTimeCRUD.calculate_and_update_all(session)
+        
         print("Тестовые данные успешно созданы!")
         
     except Exception as e:
@@ -95,29 +191,6 @@ def initialize_sample_data():
     finally:
         session.close()
 
-def demonstrate_queries():
-    """Демонстрация работы запросов"""
-    session = get_session()
-    
-    try:
-        print("\n=== Демонстрация аналитических запросов ===")
-        
-        # Запрос 4: Процент работников в касках
-        helmet_percentage = queries.AnalysisQueries.calculate_helmet_usage_percentage(session)
-        print(f"Процент работников в касках: {helmet_percentage:.1f}%")
-        
-        # Запрос 5: Периоды пиковой нагрузки
-        peak_periods = queries.AnalysisQueries.find_peak_work_periods(session, min_workers=1)
-        print(f"\nНайдено периодов с высокой нагрузкой: {len(peak_periods)}")
-        
-        # Самые загруженные поезда
-        busy_trains = queries.AnalysisQueries.get_busiest_trains(session)
-        print("\nСамые загруженные поезда:")
-        for train in busy_trains:
-            print(f"  {train.train_number}: {train.workers_count} работников")
-            
-    finally:
-        session.close()
 
 def display_all_tables():
     """Вывод содержимого всех таблиц"""
@@ -190,30 +263,18 @@ def display_all_tables():
                 print(f"{wa.id:<5} {wa.worker_id:<13} {wa.activity_id:<14} {start:<20} {end:<20}")
         else:
             print("Таблица пуста")
-        
-        # 6. Таблица frame_statistics
-        print("\n--- ТАБЛИЦА: frame_statistics ---")
-        frame_stats = session.query(models.FrameStatistics).all()
-        if frame_stats:
-            print(f"{'ID':<5} {'Временная метка':<20} {'Кол-во работников':<18} {'ID поезда':<10}")
-            print("-" * 65)
-            for stat in frame_stats:
-                timestamp = stat.timestamp.strftime("%Y-%m-%d %H:%M:%S")
-                print(f"{stat.id:<5} {timestamp:<20} {stat.workers_count:<18} {stat.train_id:<10}")
+
+        # 6. Таблица mean_working_time
+        print("\n--- ТАБЛИЦА: mean_working_time ---")
+        mean_times = session.query(models.MeanWorkingTime).all()
+        if mean_times:
+            print(f"{'ID':<5} {'ID униформы':<12} {'Цвет':<15} {'Ср. время (сек)':<15} {'Работники':<10} {'Активности':<12} {'Обновлено':<20}")
+            print("-" * 100)
+            for mt in mean_times:
+                updated = mt.last_updated.strftime("%Y-%m-%d %H:%M:%S")
+                print(f"{mt.id:<5} {mt.uniform_id:<12} {mt.uniform_color:<15} {mt.mean_seconds:<15} {mt.worker_count:<10} {mt.activity_count:<12} {updated:<20}")
         else:
             print("Таблица пуста")
-        
-        # Сводная статистика
-        print("\n" + "="*50)
-        print("СВОДНАЯ СТАТИСТИКА ПО ТАБЛИЦАМ")
-        print("="*50)
-        print(f"Uniforms: {len(uniforms)} записей")
-        print(f"Activities: {len(activities)} записей")
-        print(f"Trains: {len(trains)} записей")
-        print(f"Workers: {len(workers)} записей")
-        print(f"Worker Activities: {len(worker_activities)} записей")
-        print(f"Frame Statistics: {len(frame_stats)} записей")
-        print("="*50)
         
     except Exception as e:
         print(f"Ошибка при выводе таблиц: {e}")
@@ -227,9 +288,6 @@ if __name__ == "__main__":
     
     # Инициализация тестовых данных
     initialize_sample_data()
-    
-    # Демонстрация запросов
-    demonstrate_queries()
     
     # Вывод всех таблиц
     display_all_tables()

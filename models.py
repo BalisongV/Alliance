@@ -14,7 +14,6 @@ class Train(Base):
     
     # Связи
     workers = relationship("Worker", back_populates="train", cascade="all, delete-orphan")
-    frame_statistics = relationship("FrameStatistics", back_populates="train")
 
     def __repr__(self):
         return f"<Train(id={self.id}, number='{self.train_number}')>"
@@ -78,26 +77,31 @@ class WorkerActivity(Base):
     activity_id = Column(Integer, ForeignKey("activities.id"), nullable=False)
     start_time = Column(DateTime, nullable=False)
     end_time = Column(DateTime, nullable=False)
-    
+
     # Связи
     worker = relationship("Worker", back_populates="activities")
     activity = relationship("Activity", back_populates="worker_activities")
 
     def __repr__(self):
         return f"<WorkerActivity(id={self.id}, worker_id={self.worker_id}, activity_id={self.activity_id})>"
+    
 
-
-class FrameStatistics(Base):
-    """Модель статистики по кадрам"""
-    __tablename__ = "frame_statistics"
+class MeanWorkingTime(Base):
+    """Модель среднего времени работы по униформам"""
+    __tablename__ = "mean_working_time"
 
     id = Column(Integer, primary_key=True, index=True)
-    timestamp = Column(DateTime, nullable=False, index=True)
-    workers_count = Column(Integer, nullable=False)
-    train_id = Column(BigInteger, ForeignKey("trains.id"), nullable=False)
+    uniform_id = Column(Integer, ForeignKey("uniforms.id"), nullable=False, unique=True)
+    uniform_color = Column(String(50), nullable=False)
+    mean_seconds = Column(Integer, nullable=False)  # Среднее время в секундах
+    worker_count = Column(Integer, nullable=False)  # Количество работников
+    activity_count = Column(Integer, nullable=False)  # Количество активностей
+    last_updated = Column(DateTime, default=datetime.now, nullable=False)
     
     # Связи
-    train = relationship("Train", back_populates="frame_statistics")
+    uniform = relationship("Uniform")
 
     def __repr__(self):
-        return f"<FrameStatistics(id={self.id}, timestamp={self.timestamp}, workers={self.workers_count})>"
+        return f"<MeanWorkingTime(uniform='{self.uniform_color}', mean_seconds={self.mean_seconds})>"
+    
+    

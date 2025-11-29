@@ -73,22 +73,6 @@ class AnalysisQueries:
         return 0
 
     @staticmethod
-    def find_peak_work_periods(db: Session, min_workers: int = 5, days: int = 1):
-        """
-        Запрос 5: Найти "периоды пиковой нагрузки" - когда в кадре одновременно находилось больше N работников
-        """
-        end_time = datetime.now()
-        start_time = end_time - timedelta(days=days)
-        
-        return db.query(models.FrameStatistics).filter(
-            and_(
-                models.FrameStatistics.timestamp >= start_time,
-                models.FrameStatistics.timestamp <= end_time,
-                models.FrameStatistics.workers_count >= min_workers
-            )
-        ).order_by(models.FrameStatistics.workers_count.desc()).all()
-
-    @staticmethod
     def get_worker_activity_timeline(db: Session, worker_id: int):
         """
         Получить полную временную линию активности для конкретного работника
