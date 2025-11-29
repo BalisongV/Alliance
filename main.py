@@ -107,7 +107,8 @@ def initialize_sample_data():
             uniforms["серый"].id,
             True,
             datetime.now() - timedelta(hours=3, minutes=30),
-            datetime.now() - timedelta(hours=1, minutes=20)
+            #datetime.now() - timedelta(hours=1, minutes=20)
+            None
         )
         worker4 = crud.WorkerCRUD.create_worker(
             session,
@@ -184,7 +185,8 @@ def initialize_sample_data():
             worker4.id,
             activities["работает"].id,
             datetime.now() - timedelta(hours=2, minutes=10),
-            datetime.now() - timedelta(minutes=40)
+            #datetime.now() - timedelta(minutes=40)
+            None
         )
         crud.WorkerActivityCRUD.create_worker_activity(
             session,
