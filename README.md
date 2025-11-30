@@ -1,4 +1,5 @@
 # Alliance
-Human recognition
+Worker recognition
 
-We are alliance
+main.py - создание базы данных
+test_bd.py - дашборд
